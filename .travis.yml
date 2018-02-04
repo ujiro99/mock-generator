@@ -1,0 +1,32 @@
+language: go
+
+go:
+  - master
+
+install:
+  - go get ./...
+  - go get -u golang.org/x/tools/cmd/goimports
+  - go get -u github.com/golang/lint/golint
+
+script:
+  - go vet ./...
+  - diff <(goimports -d .) <(printf "")
+  - diff <(golint ./...) <(printf "")
+
+after_success:
+  - ./build.sh
+
+deploy:
+  provider: releases
+  api-key: $GITHUB_TOKEN
+  skip_cleanup: true
+  file:
+    - "dist/darwin_386_mock-generator.zip"
+    - "dist/darwin_64_mock-generator.zip"
+    - "dist/linux_386_mock-generator.zip"
+    - "dist/linux_64_mock-generator.zip"
+    - "dist/windows_386_mock-generator.zip"
+    - "dist/windows_64_mock-generator.zip"
+  on:
+    all_branches: true
+    tags: true
