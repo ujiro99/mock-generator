@@ -1,0 +1,76 @@
+!_TAG_FILE_ENCODING	cp932	//
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_JP_AUTHOR	HIGASHI Hirohito	/Twitter: @h_east/
+!_TAG_PROGRAM_JP_URL	http://hp.vector.co.jp/authors/VA025040/	//
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8J2	//
+AsyncDPFibonacci	.\inc\fibonacci.hpp	/^class AsyncDPFibonacci : public Fibonacci {$/;"	kind:class
+AsyncDPFibonacci	.\src\fibonacci.cpp	/^AsyncDPFibonacci::AsyncDPFibonacci() {$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+AsyncDPFibonacci::AsyncDPFibonacci	.\src\fibonacci.cpp	/^AsyncDPFibonacci::AsyncDPFibonacci() {$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+AsyncDPFibonacci::calc	.\src\fibonacci.cpp	/^int AsyncDPFibonacci::calc(int x) {$/;"	kind:function	class:AsyncDPFibonacci	signature:(int x)
+AsyncDPFibonacci::execCalc	.\src\fibonacci.cpp	/^void AsyncDPFibonacci::execCalc(int x) {$/;"	kind:function	class:AsyncDPFibonacci	signature:(int x)
+AsyncDPFibonacci::t	.\inc\fibonacci.hpp	/^    class std::thread t;$/;"	kind:member	class:AsyncDPFibonacci	typeref:class:AsyncDPFibonacci::thread
+AsyncDPFibonacci::wait	.\src\fibonacci.cpp	/^void AsyncDPFibonacci::wait() {$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+AsyncDPFibonacci::~AsyncDPFibonacci	.\src\fibonacci.cpp	/^AsyncDPFibonacci::~AsyncDPFibonacci() {}$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+Counter	.\inc\counter.hpp	/^class Counter {$/;"	kind:class
+Counter	.\src\counter.cpp	/^Counter::Counter() {$/;"	kind:function	class:Counter	signature:()
+Counter::Counter	.\src\counter.cpp	/^Counter::Counter() {$/;"	kind:function	class:Counter	signature:()
+Counter::calcTime	.\src\counter.cpp	/^void Counter::calcTime(int x) {$/;"	kind:function	class:Counter	signature:(int x)
+Counter::calcTimeAsync	.\src\counter.cpp	/^void Counter::calcTimeAsync(int x) {$/;"	kind:function	class:Counter	signature:(int x)
+Counter::setFibonacci	.\src\counter.cpp	/^void Counter::setFibonacci(Fibonacci *fib) {$/;"	kind:function	class:Counter	signature:(Fibonacci *fib)
+Counter::t_fib	.\inc\counter.hpp	/^    Fibonacci *t_fib;$/;"	kind:member	class:Counter
+DPFibonacci	.\inc\fibonacci.hpp	/^class DPFibonacci : public Fibonacci {$/;"	kind:class
+DPFibonacci	.\src\fibonacci.cpp	/^DPFibonacci::DPFibonacci() {$/;"	kind:function	class:DPFibonacci	signature:()
+DPFibonacci::DPFibonacci	.\src\fibonacci.cpp	/^DPFibonacci::DPFibonacci() {$/;"	kind:function	class:DPFibonacci	signature:()
+DPFibonacci::calc	.\src\fibonacci.cpp	/^int DPFibonacci::calc(int x) {$/;"	kind:function	class:DPFibonacci	signature:(int x)
+DPFibonacci::~DPFibonacci	.\src\fibonacci.cpp	/^DPFibonacci::~DPFibonacci() {}$/;"	kind:function	class:DPFibonacci	signature:()
+Executed	.\inc\fibonacci.hpp	/^typedef void (*Executed)(ExecutedData);$/;"	kind:typedef
+ExecutedData	.\inc\fibonacci.hpp	/^} ExecutedData;$/;"	kind:typedef	typeref:struct:_ExecutedData
+Fibonacci	.\inc\fibonacci.hpp	/^class Fibonacci {$/;"	kind:class
+Fibonacci::data	.\inc\fibonacci.hpp	/^    ExecutedData data   = {};      \/**< 計算完了コールバックで渡されるデータ *\/$/;"	kind:member	class:Fibonacci
+Fibonacci::name	.\inc\fibonacci.hpp	/^    const char *name    = "";      \/**< 計算方法の名称  *\/$/;"	kind:member	class:Fibonacci
+Fibonacci::onExecuted	.\inc\fibonacci.hpp	/^    Executed onExecuted = nullptr; \/**< 計算完了時のコールバック *\/$/;"	kind:member	class:Fibonacci
+Fibonacci::~Fibonacci	.\inc\fibonacci.hpp	/^    virtual ~Fibonacci(){};$/;"	kind:function	class:Fibonacci	signature:()
+MemorizeFibonacci	.\inc\fibonacci.hpp	/^class MemorizeFibonacci : public Fibonacci {$/;"	kind:class
+MemorizeFibonacci	.\src\fibonacci.cpp	/^MemorizeFibonacci::MemorizeFibonacci() {$/;"	kind:function	class:MemorizeFibonacci	signature:()
+MemorizeFibonacci::MemorizeFibonacci	.\src\fibonacci.cpp	/^MemorizeFibonacci::MemorizeFibonacci() {$/;"	kind:function	class:MemorizeFibonacci	signature:()
+MemorizeFibonacci::calc	.\src\fibonacci.cpp	/^int MemorizeFibonacci::calc(int x) {$/;"	kind:function	class:MemorizeFibonacci	signature:(int x)
+MemorizeFibonacci::memo	.\inc\fibonacci.hpp	/^    int memo[10000] = {0}; \/**< メモ化した値を格納する変数. *\/$/;"	kind:member	class:MemorizeFibonacci
+MemorizeFibonacci::~MemorizeFibonacci	.\src\fibonacci.cpp	/^MemorizeFibonacci::~MemorizeFibonacci() {}$/;"	kind:function	class:MemorizeFibonacci	signature:()
+RecursiveFibonacci	.\inc\fibonacci.hpp	/^class RecursiveFibonacci : public Fibonacci {$/;"	kind:class
+RecursiveFibonacci	.\src\fibonacci.cpp	/^RecursiveFibonacci::RecursiveFibonacci() {$/;"	kind:function	class:RecursiveFibonacci	signature:()
+RecursiveFibonacci::RecursiveFibonacci	.\src\fibonacci.cpp	/^RecursiveFibonacci::RecursiveFibonacci() {$/;"	kind:function	class:RecursiveFibonacci	signature:()
+RecursiveFibonacci::calc	.\src\fibonacci.cpp	/^int RecursiveFibonacci::calc(int x) {$/;"	kind:function	class:RecursiveFibonacci	signature:(int x)
+RecursiveFibonacci::~RecursiveFibonacci	.\src\fibonacci.cpp	/^RecursiveFibonacci::~RecursiveFibonacci() {}$/;"	kind:function	class:RecursiveFibonacci	signature:()
+_ExecutedData	.\inc\fibonacci.hpp	/^typedef struct _ExecutedData {$/;"	kind:struct
+_ExecutedData::name	.\inc\fibonacci.hpp	/^    const char *name;$/;"	kind:member	struct:_ExecutedData
+_ExecutedData::result	.\inc\fibonacci.hpp	/^    int result;$/;"	kind:member	struct:_ExecutedData
+_ExecutedData::start	.\inc\fibonacci.hpp	/^    clock_t start;$/;"	kind:member	struct:_ExecutedData
+calc	.\src\fibonacci.cpp	/^int AsyncDPFibonacci::calc(int x) {$/;"	kind:function	class:AsyncDPFibonacci	signature:(int x)
+calc	.\src\fibonacci.cpp	/^int DPFibonacci::calc(int x) {$/;"	kind:function	class:DPFibonacci	signature:(int x)
+calc	.\src\fibonacci.cpp	/^int MemorizeFibonacci::calc(int x) {$/;"	kind:function	class:MemorizeFibonacci	signature:(int x)
+calc	.\src\fibonacci.cpp	/^int RecursiveFibonacci::calc(int x) {$/;"	kind:function	class:RecursiveFibonacci	signature:(int x)
+calcTime	.\src\counter.cpp	/^void Counter::calcTime(int x) {$/;"	kind:function	class:Counter	signature:(int x)
+calcTimeAsync	.\src\counter.cpp	/^void Counter::calcTimeAsync(int x) {$/;"	kind:function	class:Counter	signature:(int x)
+data	.\inc\fibonacci.hpp	/^    ExecutedData data   = {};      \/**< 計算完了コールバックで渡されるデータ *\/$/;"	kind:member	class:Fibonacci
+exec	.\src\main.cpp	/^void exec(Counter *counter, vector<Fibonacci *> fib) {$/;"	kind:function	signature:(Counter *counter, vector<Fibonacci *> fib)
+execCalc	.\src\fibonacci.cpp	/^void AsyncDPFibonacci::execCalc(int x) {$/;"	kind:function	class:AsyncDPFibonacci	signature:(int x)
+main	.\src\main.cpp	/^int main(int argc, char const *argv[]) {$/;"	kind:function	signature:(int argc, char const *argv[])
+memo	.\inc\fibonacci.hpp	/^    int memo[10000] = {0}; \/**< メモ化した値を格納する変数. *\/$/;"	kind:member	class:MemorizeFibonacci
+name	.\inc\fibonacci.hpp	/^    const char *name    = "";      \/**< 計算方法の名称  *\/$/;"	kind:member	class:Fibonacci
+name	.\inc\fibonacci.hpp	/^    const char *name;$/;"	kind:member	struct:_ExecutedData
+onExecuted	.\inc\fibonacci.hpp	/^    Executed onExecuted = nullptr; \/**< 計算完了時のコールバック *\/$/;"	kind:member	class:Fibonacci
+result	.\inc\fibonacci.hpp	/^    int result;$/;"	kind:member	struct:_ExecutedData
+setFibonacci	.\src\counter.cpp	/^void Counter::setFibonacci(Fibonacci *fib) {$/;"	kind:function	class:Counter	signature:(Fibonacci *fib)
+start	.\inc\fibonacci.hpp	/^    clock_t start;$/;"	kind:member	struct:_ExecutedData
+t	.\inc\fibonacci.hpp	/^    class std::thread t;$/;"	kind:member	class:AsyncDPFibonacci	typeref:class:AsyncDPFibonacci::thread
+t_fib	.\inc\counter.hpp	/^    Fibonacci *t_fib;$/;"	kind:member	class:Counter
+wait	.\src\fibonacci.cpp	/^void AsyncDPFibonacci::wait() {$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+~AsyncDPFibonacci	.\src\fibonacci.cpp	/^AsyncDPFibonacci::~AsyncDPFibonacci() {}$/;"	kind:function	class:AsyncDPFibonacci	signature:()
+~DPFibonacci	.\src\fibonacci.cpp	/^DPFibonacci::~DPFibonacci() {}$/;"	kind:function	class:DPFibonacci	signature:()
+~Fibonacci	.\inc\fibonacci.hpp	/^    virtual ~Fibonacci(){};$/;"	kind:function	class:Fibonacci	signature:()
+~MemorizeFibonacci	.\src\fibonacci.cpp	/^MemorizeFibonacci::~MemorizeFibonacci() {}$/;"	kind:function	class:MemorizeFibonacci	signature:()
+~RecursiveFibonacci	.\src\fibonacci.cpp	/^RecursiveFibonacci::~RecursiveFibonacci() {}$/;"	kind:function	class:RecursiveFibonacci	signature:()
