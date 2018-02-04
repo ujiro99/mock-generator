@@ -1,6 +1,6 @@
 #!/bin/sh
 
-bin_name=mock-generator
+bin_name=$1
 
 GOOS=linux   GOARCH=386   go build -ldflags="-s -w" -o ./dist/linux_386_${bin_name}
 GOOS=linux   GOARCH=amd64 go build -ldflags="-s -w" -o ./dist/linux_64_${bin_name}
