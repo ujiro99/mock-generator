@@ -17,14 +17,14 @@ import (
 	"github.com/urfave/cli"
 )
 
-type FileType int
+type fileType int
 
 const (
-	TagFile    = "mock_gen.tag"
-	MockPrefix = "mock_"
+	tagFile    = "mock_gen.tag"
+	mockPrefix = "mock_"
 
-	TypeCpp FileType = iota
-	TypeHpp
+	typeCpp fileType = iota
+	typeHpp
 )
 
 var (
@@ -38,7 +38,7 @@ type mockParams struct {
 	MockDir  string
 	FileName string
 	Prefix   string
-	Type     FileType
+	Type     fileType
 }
 
 func main() {
@@ -80,9 +80,9 @@ func main() {
 		// exec and parse ctags
 		exclude := c.StringSlice("exclude")
 		execCtags(exclude)
-		bytes, _ := ioutil.ReadFile(TagFile)
+		bytes, _ := ioutil.ReadFile(tagFile)
 		files := ctags.NewParser().Parse(string(bytes))
-		os.Remove(TagFile)
+		os.Remove(tagFile)
 
 		// generate mock files
 		fileNum := len(files)
@@ -98,7 +98,7 @@ func main() {
 }
 
 func execCtags(exclude []string) string {
-	cmd := []string{"ctags", "-R", "--languages=c,c++", "--extra=+q", "--fields=+KSz", "-f", TagFile}
+	cmd := []string{"ctags", "-R", "--languages=c,c++", "--extra=+q", "--fields=+KSz", "-f", tagFile}
 	if len(exclude) > 0 {
 		for _, v := range exclude {
 			cmd = append(cmd, "--exclude="+v)
@@ -148,7 +148,7 @@ func generate(f ctags.File, out string) {
 	}
 	defer w.Close()
 
-	if p.Type == TypeCpp {
+	if p.Type == typeCpp {
 		err = cppTmpl.Execute(w, p)
 	} else {
 		err = hppTmpl.Execute(w, p)
@@ -163,17 +163,17 @@ func generateParam(file ctags.File, out string) mockParams {
 	p := mockParams{File: &file}
 	dir, name := filepath.Split(file.Path)
 	p.MockDir = filepath.Join(out, dir)
-	p.MockPath = filepath.Join(out, dir, MockPrefix+name)
+	p.MockPath = filepath.Join(out, dir, mockPrefix+name)
 	ext := filepath.Ext(name)
 	if strings.HasPrefix(ext, ".c") {
-		log.Debugf("use type TypeCpp for %s", ext)
-		p.Type = TypeCpp
+		log.Debugf("use type typeCpp for %s", ext)
+		p.Type = typeCpp
 	} else {
 		log.Debugf("use type TypeHpp for %s", ext)
-		p.Type = TypeHpp
+		p.Type = typeHpp
 	}
 	p.FileName = name[:len(name)-len(ext)]
-	p.Prefix = MockPrefix
+	p.Prefix = mockPrefix
 
 	log.WithFields(log.Fields{
 		"Classes": len(p.Classes),

@@ -10,40 +10,43 @@ import (
 
 const (
 	// ctags filelds
-	Name      = "name"
-	FilePath  = "filePath"
-	Line      = "line"
-	Type      = "type"
-	ClassName = "className"
-	Signature = "signature"
+	name      = "name"
+	filePath  = "filePath"
+	line      = "line"
+	kind      = "kind"
+	className = "className"
+	signature = "signature"
 
 	// tag types
-	TypeClass = "kind:class"
-	TypeFunc  = "kind:function"
+	typeCpp  = "kind:class"
+	typeFunc = "kind:function"
 )
 
 // key order for analyze ctags.
 var (
-	keyOrderClass  = []string{Name, FilePath, Line, Type}
+	keyOrderClass  = []string{name, filePath, line, kind}
 	keyNumClass    = len(keyOrderClass)
-	keyOrderMethod = []string{Name, FilePath, Line, Type, ClassName, Signature}
+	keyOrderMethod = []string{name, filePath, line, kind, className, signature}
 	keyNumMethod   = len(keyOrderMethod)
-	keyOrderFunc   = []string{Name, FilePath, Line, Type, Signature}
+	keyOrderFunc   = []string{name, filePath, line, kind, signature}
 	keyNumFunc     = len(keyOrderFunc)
 )
 
+// File represents a cpp/hpp file.
 type File struct {
 	Path    string
 	Classes []*Class
 	Funcs   []Func
 }
 
+// Class represents a class.
 type Class struct {
 	Name            string
 	Funcs           []Func
 	DeclarationFile string
 }
 
+// Func represents a function.
 type Func struct {
 	Name         string
 	Signature    string
@@ -84,16 +87,16 @@ func (p *ctagsParser) Parse(tags string) []*File {
 
 	lines := strings.Split(tags, "\n")
 	for _, line := range lines {
-		if strings.Index(line, TypeClass) >= 0 {
+		if strings.Index(line, typeCpp) >= 0 {
 
 			m := p.classPattern.FindStringSubmatch(line)
 			if len(m) > keyNumClass {
 
 				log.WithFields(log.Fields{
-					Name:     m[1],
-					FilePath: m[2],
-					Line:     m[3],
-					Type:     m[4],
+					name:     m[1],
+					filePath: m[2],
+					line:     m[3],
+					kind:     m[4],
 				}).Debugln("class")
 
 				f := p.findFile(&files, m[2])
@@ -117,17 +120,17 @@ func (p *ctagsParser) Parse(tags string) []*File {
 				f.Classes = append(f.Classes, c)
 			}
 
-		} else if strings.Index(line, TypeFunc) >= 0 {
+		} else if strings.Index(line, typeFunc) >= 0 {
 			m := p.methodPattern.FindStringSubmatch(line)
 			if len(m) > keyNumMethod {
 
 				log.WithFields(log.Fields{
-					Name:      m[1],
-					FilePath:  m[2],
-					Line:      m[3],
-					Type:      m[4],
-					ClassName: m[5],
-					Signature: m[6],
+					name:      m[1],
+					filePath:  m[2],
+					line:      m[3],
+					kind:      m[4],
+					className: m[5],
+					signature: m[6],
 				}).Debugln("func")
 
 				f := p.findFile(&files, m[2])
@@ -207,11 +210,11 @@ func (p *ctagsParser) Parse(tags string) []*File {
 				m := p.funcPattern.FindStringSubmatch(line)
 				if len(m) > keyNumFunc {
 					log.WithFields(log.Fields{
-						Name:      m[1],
-						FilePath:  m[2],
-						Line:      m[3],
-						Type:      m[4],
-						Signature: m[5],
+						name:      m[1],
+						filePath:  m[2],
+						line:      m[3],
+						kind:      m[4],
+						signature: m[5],
 					}).Debugln("func")
 
 					f := p.findFile(&files, m[2])
