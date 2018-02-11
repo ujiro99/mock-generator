@@ -20,9 +20,30 @@ import (
 type fileType int
 
 const (
-	tagFile    = "mock_gen.tag"
-	mockPrefix = "mock_"
+	tagFile     = "mock_gen.tag"
+	mockPrefix  = "mock_"
 	defaultDist = "generated"
+	helpTxt     = `
+{{.Name}} is c++ mock generator using FakeIt.
+
+Usage:
+   {{.HelpName}} [options] [command]
+{{if .Commands}}
+Commands:
+{{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
+Options:
+   {{range .VisibleFlags}}{{.}}
+   {{end}}{{end}}{{if .Copyright}}
+Copyright:
+   {{.Copyright}}
+   {{end}}{{if .Version}}
+Version:
+   {{.Version}}
+   {{end}} {{if len .Authors}}
+Author:
+   {{range .Authors}}{{ . }}{{end}}
+   {{end}}
+`
 
 	typeCpp fileType = iota
 	typeHpp
@@ -46,9 +67,8 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "mock-generator"
 	app.Version = "0.0.2"
-	app.Usage = "FakeIt mock generator."
-	app.UsageText = "mock-generator [options]"
 	app.Author = "Yujiro Takeda"
+	app.CustomAppHelpTemplate = helpTxt
 
 	var out string
 	var debug bool
