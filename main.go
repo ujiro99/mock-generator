@@ -22,6 +22,7 @@ type fileType int
 const (
 	tagFile    = "mock_gen.tag"
 	mockPrefix = "mock_"
+	defaultDist = "generated"
 
 	typeCpp fileType = iota
 	typeHpp
@@ -44,7 +45,7 @@ type mockParams struct {
 func main() {
 	app := cli.NewApp()
 	app.Name = "mock-generator"
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 	app.Usage = "FakeIt mock generator."
 	app.UsageText = "mock-generator [options]"
 	app.Author = "Yujiro Takeda"
@@ -71,6 +72,9 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		// initialize
 		loadTemplate()
+		if out == "" {
+			out = defaultDist
+		}
 		if debug {
 			log.SetLevel(log.DebugLevel)
 		} else {
@@ -136,12 +140,14 @@ func loadTemplate() {
 }
 
 func generate(f ctags.File, out string) {
+	removeDuplicatedInclude(&f)
 	p := generateParam(f, out)
 
 	err := os.MkdirAll(p.MockDir, 0777)
 	if err != nil {
 		log.Fatalf("Can't create mock dir: %s\n%s", p.MockDir, err)
 	}
+
 	w, err := os.Create(p.MockPath)
 	if err != nil {
 		log.Fatalf("Can't create mock file: %s\n%s", p.MockPath, err)
@@ -153,23 +159,23 @@ func generate(f ctags.File, out string) {
 	} else {
 		err = hppTmpl.Execute(w, p)
 	}
-
 	if err != nil {
 		log.Fatalf("Can't generate mock: %s\n%s", p.MockPath, err)
 	}
 }
 
 func generateParam(file ctags.File, out string) mockParams {
-	p := mockParams{File: &file}
 	dir, name := filepath.Split(file.Path)
+	ext := filepath.Ext(name)
+
+	p := mockParams{File: &file}
 	p.MockDir = filepath.Join(out, dir)
 	p.MockPath = filepath.Join(out, dir, mockPrefix+name)
-	ext := filepath.Ext(name)
 	if strings.HasPrefix(ext, ".c") {
-		log.Debugf("use type typeCpp for %s", ext)
+		log.Debugf("use type typeCpp for %s", file.Path)
 		p.Type = typeCpp
 	} else {
-		log.Debugf("use type TypeHpp for %s", ext)
+		log.Debugf("use type TypeHpp for %s", file.Path)
 		p.Type = typeHpp
 	}
 	p.FileName = name[:len(name)-len(ext)]
@@ -178,6 +184,17 @@ func generateParam(file ctags.File, out string) mockParams {
 	log.WithFields(log.Fields{
 		"Classes": len(p.Classes),
 		"Funcs":   len(p.Funcs),
-	}).Debugf("generated params %v", p)
+	}).Debugln("generated params")
 	return p
+}
+
+func removeDuplicatedInclude(f *ctags.File) {
+	existsInclude := make(map[string]bool, len(f.Classes))
+	for _, c := range f.Classes {
+		if existsInclude[c.DeclarationFile] {
+			c.DeclarationFile = ""
+		} else {
+			existsInclude[c.DeclarationFile] = true
+		}
+	}
 }

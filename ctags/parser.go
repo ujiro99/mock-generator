@@ -9,26 +9,26 @@ import (
 )
 
 const (
-	// ctags filelds
+	// ctags fields
 	name      = "name"
 	filePath  = "filePath"
-	line      = "line"
+	raw       = "raw"
 	kind      = "kind"
 	className = "className"
 	signature = "signature"
 
 	// tag types
-	typeCpp  = "kind:class"
-	typeFunc = "kind:function"
+	typeClass = "kind:class"
+	typeFunc  = "kind:function"
 )
 
 // key order for analyze ctags.
 var (
-	keyOrderClass  = []string{name, filePath, line, kind}
+	keyOrderClass  = []string{name, filePath, raw, kind}
 	keyNumClass    = len(keyOrderClass)
-	keyOrderMethod = []string{name, filePath, line, kind, className, signature}
+	keyOrderMethod = []string{name, filePath, raw, kind, className, signature}
 	keyNumMethod   = len(keyOrderMethod)
-	keyOrderFunc   = []string{name, filePath, line, kind, signature}
+	keyOrderFunc   = []string{name, filePath, raw, kind, signature}
 	keyNumFunc     = len(keyOrderFunc)
 )
 
@@ -72,7 +72,7 @@ func NewParser() Parser {
 
 // ctagsParser implements Parser
 type ctagsParser struct {
-	// regex pattrens for analyze ctags.
+	// regex patterns for analyze ctags.
 	classPattern  *regexp.Regexp
 	methodPattern *regexp.Regexp
 	funcPattern   *regexp.Regexp
@@ -87,7 +87,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 
 	lines := strings.Split(tags, "\n")
 	for _, line := range lines {
-		if strings.Index(line, typeCpp) >= 0 {
+		if strings.Index(line, typeClass) >= 0 {
 
 			m := p.classPattern.FindStringSubmatch(line)
 			if len(m) > keyNumClass {
@@ -95,7 +95,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 				log.WithFields(log.Fields{
 					name:     m[1],
 					filePath: m[2],
-					line:     m[3],
+					raw:      m[3],
 					kind:     m[4],
 				}).Debugln("class")
 
@@ -115,8 +115,8 @@ func (p *ctagsParser) Parse(tags string) []*File {
 						Funcs: make([]Func, 0),
 					}
 					classes = append(classes, c)
+					_, c.DeclarationFile = filepath.Split(m[2])
 				}
-				_, c.DeclarationFile = filepath.Split(m[2])
 				f.Classes = append(f.Classes, c)
 			}
 
@@ -127,7 +127,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 				log.WithFields(log.Fields{
 					name:      m[1],
 					filePath:  m[2],
-					line:      m[3],
+					raw:       m[3],
 					kind:      m[4],
 					className: m[5],
 					signature: m[6],
@@ -180,7 +180,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 								"Return":       ml[1],
 								"Args":         p.extractArgs(m[6]),
 								"ArgWithTypes": m[6],
-							}).Debugln("class line")
+							}).Debugln("class raw")
 						}
 					}
 				} else {
@@ -212,7 +212,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 					log.WithFields(log.Fields{
 						name:      m[1],
 						filePath:  m[2],
-						line:      m[3],
+						raw:       m[3],
 						kind:      m[4],
 						signature: m[5],
 					}).Debugln("func")
@@ -226,13 +226,12 @@ func (p *ctagsParser) Parse(tags string) []*File {
 						}
 						files = append(files, f)
 					}
-					fn := p.findFunc(&f.Funcs, m[2])
+					fn := p.findFunc(&f.Funcs, m[1])
 					if fn == nil {
 						ml := p.linePattern.FindStringSubmatch(m[3])
 						if len(ml) >= 2 {
-
 							f.Funcs = append(f.Funcs, Func{
-								Name:         m[2],
+								Name:         m[1],
 								Signature:    ml[0],
 								Return:       ml[1],
 								Args:         p.extractArgs(m[5]),
@@ -243,7 +242,7 @@ func (p *ctagsParser) Parse(tags string) []*File {
 								"Return":       ml[1],
 								"Args":         p.extractArgs(m[5]),
 								"ArgWithTypes": m[5],
-							}).Debugln("file line")
+							}).Debugln("file raw")
 						}
 					}
 				}
@@ -284,10 +283,13 @@ func (p *ctagsParser) extractArgs(arguments string) string {
 	args := strings.Split(arguments, ",")
 	vars := make([]string, len(args))
 	for i, a := range args {
-		t := strings.Split(a, " ")
-		if len(t) >= 2 {
-			vars[i] = t[1]
+		if t := strings.Split(a, " "); len(t) >= 2 {
+			a = t[len(t)-1]
 		}
+		if t := strings.Split(a, "*"); len(t) >= 2 {
+			a = strings.Trim(t[len(t)-1], " ")
+		}
+		vars[i] = strings.TrimRight(a, "[]")
 	}
-	return strings.Join(vars, ",")
+	return strings.Join(vars, ", ")
 }

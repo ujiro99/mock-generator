@@ -6,14 +6,16 @@ const (
 //////////////////////////////////////////
 
 #include "{{.Prefix}}{{.FileName}}.hpp"
-{{range .Classes}}
+{{range .Classes -}}
+{{if ne .DeclarationFile "" -}}
 #include "{{.DeclarationFile}}"
+{{- end}}
 {{- end}}
 
 {{- range .Classes}}
 
 //////////////////////////////////////////
-// for {{.Name}}
+// for Class {{.Name}}
 //////////////////////////////////////////
 
 I{{.Name}} *Mock{{.Name}}::mock = nullptr;
@@ -32,14 +34,13 @@ Mock{{.Name}}::~Mock{{.Name}}() {
 {{- $class := .Name -}}
 {{range .Funcs}}
 
-// for {{.Return}} {{$class}}::{{.Name}}({{.ArgWithTypes}})
 {{.Return}} Mock{{$class}}::{{.Name}}({{.ArgWithTypes}}) {
-    if (mockEnable && useMock[callCount]) {
+    callCount++;
+    if (mockEnable && useMock[callCount - 1]) {
         return mock->{{.Name}}({{.Args}});
     } else {
         return origin->{{.Name}}({{.Args}});
     }
-    callCount++;
 }
 {{- end}}
 {{- end}}
@@ -48,21 +49,23 @@ Mock{{.Name}}::~Mock{{.Name}}() {
 	hppTemplate = `//////////////////////////////////////////
 // for {{.Path}}
 //////////////////////////////////////////
-
 #pragma once
-{{range .Classes}}
+
+{{range .Classes -}}
+{{if ne .DeclarationFile "" -}}
 #include "{{.DeclarationFile}}"
 {{- end}}
+{{- end -}}
 
 {{range .Classes}}
 
 //////////////////////////////////////////
-// for {{.Name}}
+// for Class {{.Name}}
 //////////////////////////////////////////
 
 class I{{.Name}} {
   public:
-    ~I{{.Name}}() = 0;
+    virtual ~I{{.Name}}() = 0;
 {{range .Funcs}}
     virtual {{.Return}} {{.Name}}({{.ArgWithTypes}}) = 0;
 {{- end}}
@@ -71,9 +74,9 @@ class I{{.Name}} {
 class Mock{{.Name}} {
   public:
     // for mock
-    static I{{.Name}} *mock;
+    static I{{.Name}}* mock;
     static bool mockEnable;
-    static bool *useMock;
+    static bool* useMock;
 
     Mock{{.Name}}();
     ~Mock{{.Name}}();
@@ -83,7 +86,7 @@ class Mock{{.Name}} {
 
   private:
     // for original
-    {{.Name}} *origin;
+    {{.Name}}* origin;
     int callCount;
 };
 {{- end}}
