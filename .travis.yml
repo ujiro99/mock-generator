@@ -7,6 +7,7 @@ install:
   - go get ./...
   - go get -u golang.org/x/tools/cmd/goimports
   - go get -u github.com/golang/lint/golint
+  - go get -u github.com/stretchr/testify
   - go get -u github.com/haya14busa/goverage
 
 script:
