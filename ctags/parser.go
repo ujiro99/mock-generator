@@ -20,6 +20,8 @@ const (
 	// tag types
 	typeClass = "kind:class"
 	typeFunc  = "kind:function"
+
+	inClass = "class:"
 )
 
 // key order for analyze ctags.
@@ -64,9 +66,9 @@ type Parser interface {
 func NewParser() Parser {
 	p := ctagsParser{}
 	p.classPattern = regexp.MustCompile(`^(.+)\t(.+)\t/\^(.+).*\$/;"\tkind:(\S+)`)
-	p.methodPattern = regexp.MustCompile(`^(.+)\t(.+)\t/\^(.+)\(.*\$/;"\tkind:(\S+)\tclass:(\S+)\tsignature:\((.*)\)`)
+	p.methodPattern = regexp.MustCompile(`^.+::(\S+)\t(.+)\t/\^(.+)\(.*\$/;"\tkind:(\S+)\tclass:(\S+)\tsignature:\((.*)\)`)
 	p.funcPattern = regexp.MustCompile(`^(.+)\t(.+)\t/\^(.+)\(.*\$/;"\tkind:(\S+)\tsignature:\((.*)\)`)
-	p.linePattern = regexp.MustCompile(`^(\S+)\s+\S+`)
+	p.rawPattern = regexp.MustCompile(`^(\S+)\s+\S+`)
 	return &p
 }
 
@@ -76,180 +78,107 @@ type ctagsParser struct {
 	classPattern  *regexp.Regexp
 	methodPattern *regexp.Regexp
 	funcPattern   *regexp.Regexp
-	linePattern   *regexp.Regexp
+	rawPattern    *regexp.Regexp
 }
 
 // Parse a lines of ctags.
 func (p *ctagsParser) Parse(tags string) []*File {
-
 	files := make([]*File, 0)
 	classes := make([]*Class, 0)
-
 	lines := strings.Split(tags, "\n")
+
 	for _, line := range lines {
 		if strings.Index(line, typeClass) >= 0 {
-
-			m := p.classPattern.FindStringSubmatch(line)
-			if len(m) > keyNumClass {
-
-				log.WithFields(log.Fields{
-					name:     m[1],
-					filePath: m[2],
-					raw:      m[3],
-					kind:     m[4],
-				}).Debugln("class")
-
-				f := p.findFile(&files, m[2])
-				if f == nil {
-					f = &File{
-						Path:    m[2],
-						Classes: make([]*Class, 0),
-						Funcs:   make([]Func, 0),
-					}
-					files = append(files, f)
-				}
-				c := p.findClass(&classes, m[1])
-				if c == nil {
-					c = &Class{
-						Name:  m[1],
-						Funcs: make([]Func, 0),
-					}
-					classes = append(classes, c)
-					_, c.DeclarationFile = filepath.Split(m[2])
-				}
-				f.Classes = append(f.Classes, c)
-			}
-
+			p.parseClass(line, &files, &classes)
 		} else if strings.Index(line, typeFunc) >= 0 {
-			m := p.methodPattern.FindStringSubmatch(line)
-			if len(m) > keyNumMethod {
-
-				log.WithFields(log.Fields{
-					name:      m[1],
-					filePath:  m[2],
-					raw:       m[3],
-					kind:      m[4],
-					className: m[5],
-					signature: m[6],
-				}).Debugln("func")
-
-				f := p.findFile(&files, m[2])
-				if f == nil {
-					f = &File{
-						Path:    m[2],
-						Classes: make([]*Class, 0),
-						Funcs:   make([]Func, 0),
-					}
-					files = append(files, f)
-				}
-
-				c := p.findClass(&classes, m[5])
-				if c == nil {
-					c = &Class{
-						Name:  m[5],
-						Funcs: make([]Func, 0),
-					}
-					classes = append(classes, c)
-				}
-				found := false
-				for _, c := range f.Classes {
-					found = found || (c.Name == m[5])
-				}
-				if !found {
-					f.Classes = append(f.Classes, c)
-				}
-
-				method := strings.Split(m[1], "::")
-				if len(method) >= 2 {
-					log.Debugf("find method %s", m[1])
-
-					fn := p.findFunc(&c.Funcs, method[1])
-					if fn == nil {
-						ml := p.linePattern.FindStringSubmatch(m[3])
-						if len(ml) >= 2 {
-							c.Funcs = append(c.Funcs, Func{
-								Name:         method[1],
-								Signature:    ml[0],
-								Return:       ml[1],
-								Args:         p.extractArgs(m[6]),
-								ArgWithTypes: m[6],
-							})
-
-							log.WithFields(log.Fields{
-								"Signature":    ml[0],
-								"Return":       ml[1],
-								"Args":         p.extractArgs(m[6]),
-								"ArgWithTypes": m[6],
-							}).Debugln("class raw")
-						}
-					}
-				} else {
-					fn := p.findFunc(&c.Funcs, m[1])
-					if fn != nil {
-						continue
-					}
-					log.Debugf("ignore constructor %s(%s)", m[1], m[6])
-
-					// c.Funcs = append(c.Funcs, Func{
-					// 	Name:         m[1],
-					// 	Signature:    m[6],
-					// 	Return:       "",
-					// 	Args:         p.extractArgs(m[6]),
-					// 	ArgWithTypes: m[6],
-					// })
-
-					// log.WithFields(log.Fields{
-					// 	"Signature":    m[6],
-					// 	"Return":       "",
-					// 	"Args":         p.extractArgs(m[6]),
-					// 	"ArgWithTypes": m[6],
-					// }).Debugln("constructor ")
-
-				}
-			} else {
-				m := p.funcPattern.FindStringSubmatch(line)
-				if len(m) > keyNumFunc {
-					log.WithFields(log.Fields{
-						name:      m[1],
-						filePath:  m[2],
-						raw:       m[3],
-						kind:      m[4],
-						signature: m[5],
-					}).Debugln("func")
-
-					f := p.findFile(&files, m[2])
-					if f == nil {
-						f = &File{
-							Path:    m[2],
-							Classes: make([]*Class, 0),
-							Funcs:   make([]Func, 0),
-						}
-						files = append(files, f)
-					}
-					fn := p.findFunc(&f.Funcs, m[1])
-					if fn == nil {
-						ml := p.linePattern.FindStringSubmatch(m[3])
-						if len(ml) >= 2 {
-							f.Funcs = append(f.Funcs, Func{
-								Name:         m[1],
-								Signature:    ml[0],
-								Return:       ml[1],
-								Args:         p.extractArgs(m[5]),
-								ArgWithTypes: m[5],
-							})
-							log.WithFields(log.Fields{
-								"Signature":    ml[0],
-								"Return":       ml[1],
-								"Args":         p.extractArgs(m[5]),
-								"ArgWithTypes": m[5],
-							}).Debugln("file raw")
-						}
-					}
-				}
-			}
+			p.parseFunction(line, &files, &classes)
 		}
 	}
+
 	return files
+}
+
+func (p *ctagsParser) parseClass(line string, files *[]*File, classes *[]*Class) {
+	m := p.classPattern.FindStringSubmatch(line)
+	if len(m) > keyNumClass {
+		log.WithFields(p.toMap(m, keyOrderClass)).Debugln("class")
+		f := p.ensureFile(files, m[2])
+		c := p.ensureClass(classes, m[1], m[2])
+		f.Classes = append(f.Classes, c)
+	}
+}
+
+func (p *ctagsParser) parseFunction(line string, files *[]*File, classes *[]*Class) {
+	if strings.Index(line, inClass) > 0 {
+		m := p.methodPattern.FindStringSubmatch(line)
+		if len(m) > keyNumMethod {
+			log.WithFields(p.toMap(m, keyOrderMethod)).Debugln("func")
+			f := p.ensureFile(files, m[2])
+			c := p.ensureClass(classes, m[5], m[2])
+			if p.findClass(&f.Classes, m[5]) == nil {
+				f.Classes = append(f.Classes, c)
+			}
+			p.parseMethod(m[3], m[1], m[6], &c.Funcs)
+		}
+	} else {
+		m := p.funcPattern.FindStringSubmatch(line)
+		if len(m) > keyNumFunc {
+			log.WithFields(p.toMap(m, keyOrderFunc)).Debugln("func")
+			f := p.ensureFile(files, m[2])
+			p.parseMethod(m[3], m[1], m[5], &f.Funcs)
+		}
+	}
+}
+
+func (p *ctagsParser) parseMethod(raw string, name string, signature string, funcs *[]Func) {
+	fn := p.findFunc(funcs, name)
+	if fn != nil {
+		return
+	}
+
+	m := p.rawPattern.FindStringSubmatch(raw)
+	if len(m) >= 2 {
+		log.WithFields(log.Fields{
+			"Signature":    m[0],
+			"Return":       m[1],
+			"Args":         p.extractArgs(signature),
+			"ArgWithTypes": signature,
+		}).Debugln("class raw")
+
+		*funcs = append(*funcs, Func{
+			Name:         name,
+			Signature:    m[0],
+			Return:       m[1],
+			Args:         p.extractArgs(signature),
+			ArgWithTypes: signature,
+		})
+	}
+}
+
+func (p *ctagsParser) ensureClass(classes *[]*Class, name string, filePath string) *Class {
+	c := p.findClass(classes, name)
+	if c == nil {
+		c = &Class{
+			Name:  name,
+			Funcs: make([]Func, 0),
+		}
+		*classes = append(*classes, c)
+		_, c.DeclarationFile = filepath.Split(filePath)
+	}
+	return c
+}
+
+func (p *ctagsParser) ensureFile(files *[]*File, filePath string) *File {
+	f := p.findFile(files, filePath)
+	if f == nil {
+		f = &File{
+			Path:    filePath,
+			Classes: make([]*Class, 0),
+			Funcs:   make([]Func, 0),
+		}
+		*files = append(*files, f)
+	}
+	return f
 }
 
 func (p *ctagsParser) findFile(ls *[]*File, key string) *File {
@@ -292,4 +221,12 @@ func (p *ctagsParser) extractArgs(arguments string) string {
 		vars[i] = strings.TrimRight(a, "[]")
 	}
 	return strings.Join(vars, ", ")
+}
+
+func (p *ctagsParser) toMap(arry []string, keys []string) map[string]interface{} {
+	m := make(map[string]interface{}, len(keys))
+	for i, k := range keys {
+		m[k] = arry[i+1]
+	}
+	return m
 }
